@@ -1,0 +1,121 @@
+<?php
+$serverName = 'demodb.cdbmrcjxnwk5.us-east-2.rds.amazonaws.com';
+$connectionOptions = [
+    'Database' => 'UserDB',
+    'Uid' => 'testuser',
+    'PWD' => 'Test!234',
+];
+// Establishes the connection
+$conn = sqlsrv_connect($serverName, $connectionOptions);
+
+// Insert Query
+echo('Inserting a new row into table' . PHP_EOL);
+$tsql = 'INSERT INTO dbo.User (Name, Email, Message) VALUES (?,?,?);';
+$params = ['Srinivas Kancharla', 'srinivas.kancharla@amploglobal.com', 'Welcome!'];
+$getResults = sqlsrv_query($conn, $tsql, $params);
+$rowsAffected = sqlsrv_rows_affected($getResults);
+if ($getResults === false || $rowsAffected === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+echo($rowsAffected . ' row(s) inserted: ' . PHP_EOL);
+
+sqlsrv_free_stmt($getResults);
+
+
+// Insert Query
+echo('Inserting a new row into table' . PHP_EOL);
+$tsql = 'INSERT INTO dbo.User (Name, Email, Message) VALUES (?,?,?);';
+$params = ['TestUser', 'abc@xyz.com', 'QA!'];
+$getResults = sqlsrv_query($conn, $tsql, $params);
+$rowsAffected = sqlsrv_rows_affected($getResults);
+if ($getResults === false || $rowsAffected === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+echo($rowsAffected . ' row(s) inserted: ' . PHP_EOL);
+
+sqlsrv_free_stmt($getResults);
+
+
+// Read Query
+$tsql = 'SELECT Name, Email, Message FROM dbo.User;';
+$getResults = sqlsrv_query($conn, $tsql);
+echo('Reading data from table' . PHP_EOL);
+if ($getResults === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
+    echo($row['Message'] . ' ' . $row['Name'] . ' , your email id is ' . $row['Email'] . PHP_EOL);
+}
+sqlsrv_free_stmt($getResults);
+
+// Update Query
+
+$userToUpdate = 'Srinivas Kancharla';
+$tsql = 'UPDATE dbo.User SET Message = ? WHERE Name = ?';
+$params = ['Welcome To AWS Demo!', $userToUpdate];
+echo('Updating Message for user ' . $userToUpdate . PHP_EOL);
+
+$getResults = sqlsrv_query($conn, $tsql, $params);
+$rowsAffected = sqlsrv_rows_affected($getResults);
+if ($getResults === false || $rowsAffected === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+echo($rowsAffected . ' row(s) updated: ' . PHP_EOL);
+sqlsrv_free_stmt($getResults);
+
+// Read Query
+$tsql = 'SELECT Name, Email, Message FROM dbo.User;';
+$getResults = sqlsrv_query($conn, $tsql);
+echo('Reading data from table' . PHP_EOL);
+if ($getResults === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
+    echo($row['Message'] . ' ' . $row['Name'] . ' , your email id is ' . $row['Email'] . PHP_EOL);
+}
+sqlsrv_free_stmt($getResults);
+
+
+//  Delete Query
+$userToDelete = 'TestUser';
+$tsql = 'DELETE FROM TestSchema.Employees WHERE Name = ?';
+$params = [$userToDelete];
+$getResults = sqlsrv_query($conn, $tsql, $params);
+echo('Deleting user ' . $userToDelete . PHP_EOL);
+$rowsAffected = sqlsrv_rows_affected($getResults);
+if ($getResults === false || $rowsAffected === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+echo($rowsAffected . ' row(s) deleted: ' . PHP_EOL);
+sqlsrv_free_stmt($getResults);
+
+// Read Query
+$tsql = 'SELECT Id, Name, Location FROM TestSchema.Employees;';
+$getResults = sqlsrv_query($conn, $tsql);
+echo('Reading data from table' . PHP_EOL);
+if ($getResults === false) {
+    format_errors(sqlsrv_errors());
+    die();
+}
+while ($row = sqlsrv_fetch_array($getResults, SQLSRV_FETCH_ASSOC)) {
+    echo($row['Id'] . ' ' . $row['Name'] . ' ' . $row['Location'] . PHP_EOL);
+}
+sqlsrv_free_stmt($getResults);
+
+function format_errors($errors)
+{
+    /* Display errors. */
+    echo 'Error information: ';
+
+    foreach ($errors as $error) {
+        echo 'SQLSTATE: ' . $error['SQLSTATE'] . '';
+        echo 'Code: ' . $error['code'] . '';
+        echo 'Message: ' . $error['message'] . '';
+    }
+}
